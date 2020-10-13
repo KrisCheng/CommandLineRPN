@@ -104,9 +104,6 @@ public class Calculator {
             String.format("operator %s (position: %d): insufficient parameters", operator, currentElementIndex));
     }
 
-    /**
-     * Returns the values valuesStack
-     */
     public Stack<Double> getValueStack() {
         return numberStack;
     }

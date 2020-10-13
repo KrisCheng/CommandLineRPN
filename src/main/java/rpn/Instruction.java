@@ -20,7 +20,7 @@ public class Instruction {
     public List<Element> getReverseInstruction() throws CalculateException {
         List<Element> reverseElement = new ArrayList<Element>();
         if (operator.getOperandsNumber() < 1) {
-            throw new CalculateException(String.format("invalid operation for operator %s", operator.getSymbol()));
+            throw new CalculateException(String.format("invalid operation for operator %s", operator.getOperator()));
         }
         if (operator.getOperandsNumber() == 2) {
             reverseElement.add(new Element(value.toString(), true));

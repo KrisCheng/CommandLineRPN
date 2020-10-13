@@ -8,7 +8,7 @@ import static java.lang.Math.sqrt;
 
 /**
  * @author: Peng Cheng
- * @description: operator handle class
+ * @description: operator handle class, which based on the operator, reverse for undo process, operandNumber for discriminate
  * @since: 2020/10/13 21:21
  */
 public enum Operator {
@@ -38,7 +38,7 @@ public enum Operator {
         @Override
         public Double calculate(Double firstOperand, Double secondOperand) throws CalculateException {
             if (firstOperand == 0) {
-                throw new CalculateException("cannot divide by 0.");
+                throw new CalculateException("0 is illegal as divisor.");
             }
             return secondOperand / firstOperand;
         }
@@ -61,40 +61,40 @@ public enum Operator {
     UNDO("undo", null, 0) {
         @Override
         public Double calculate(Double firstOperand, Double secondOperand) throws CalculateException{
-            throw new CalculateException("Invalid operation");
+            throw new CalculateException("invalid operation");
         }
     },
 
     CLEAR("clear", null, 0) {
         @Override
         public Double calculate(Double firstOperand, Double secondOperand) throws CalculateException {
-            throw new CalculateException("Invalid operation");
+            throw new CalculateException("invalid operation");
         }
     };
 
-    // map for look up
+    // save all operators as a map for look up
     private static final Map<String, Operator> lookupMap = new HashMap<String, Operator>();
 
     static {
         for (Operator o : Operator.values()) {
-            lookupMap.put(o.getSymbol(), o);
+            lookupMap.put(o.getOperator(), o);
         }
     }
 
-    private String symbol;
+    private String operator;
     private String opposite;
-    private int operandsNumber;
+    private int operandNumber;
 
-    Operator (String symbol, String opposite, int operandsNumber) {
-        this.symbol = symbol;
+    Operator (String operator, String opposite, int operandNumber) {
+        this.operator = operator;
         this.opposite = opposite;
-        this.operandsNumber = operandsNumber;
+        this.operandNumber = operandNumber;
     }
 
     public abstract Double calculate(Double firstOperand, Double secondOperand) throws CalculateException;
 
-    public String getSymbol() {
-        return symbol;
+    public String getOperator() {
+        return operator;
     }
 
     public String getOpposite() {
@@ -102,7 +102,7 @@ public enum Operator {
     }
 
     public int getOperandsNumber() {
-        return operandsNumber;
+        return operandNumber;
     }
 
     public static Operator getEnum(String value) {
@@ -111,7 +111,7 @@ public enum Operator {
 
     @Override
     public String toString() {
-        return symbol;
+        return operator;
     }
 }
 
