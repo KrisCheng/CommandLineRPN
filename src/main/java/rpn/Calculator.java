@@ -1,5 +1,6 @@
 package rpn;
 
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -9,153 +10,105 @@ import java.util.Stack;
  */
 public class Calculator {
     private Stack<Double> numberStack = new Stack<Double>();
-    private Stack<Instruction> instructionsStack = new Stack<Instruction>();
+    private Stack<Instruction> instructionStack = new Stack<Instruction>();
     private int currentElementIndex = 0;
 
     /**
-     * Processe single element
+     * process a whole input line
      *
-     * @param element current element
-     * @param isUndoOperation indicates if the operation is an undo operation.
-     * @throws CalculateException
+     * @param input input line
      */
-    private void processElement(String element, boolean isUndoOperation) throws CalculateException {
-        if (isRealNumber(element)) {
-            numberStack.push(Double.parseDouble(element));
-            if (!isUndoOperation) {
-                instructionsStack.push(null);
-            }
-        } else {
-            processOperator(element, isUndoOperation);
+    public void processLine(String input) {
+        currentElementIndex = 0;
+        String[] elements = input.split(" ");
+        for (String element : elements) {
+            currentElementIndex++;
+            processElement(new Element(element, false));
         }
     }
 
     /**
-     * Executes an operation on the stack
+     * process single element
      *
-     * @param operatorString RPN valid operator
-     * @param isUndoOperation indicates if the operation is an undo operation.
+     * @param element current element
      * @throws CalculateException
      */
-    private void processOperator(String operatorString, boolean isUndoOperation) throws CalculateException {
+    private void processElement(Element element) {
+        if (Utils.isRealNumber(element.getValue())) {
+            numberStack.push(Double.parseDouble(element.getValue()));
+            if (!element.isUndo()) {
+                instructionStack.push(null);
+            }
+        } else {
+            processOperator(element);
+        }
+    }
+
+    /**
+     * process operator
+     *
+     * @param element
+     */
+    private void processOperator(Element element) {
         if (numberStack.isEmpty()) {
             throw new CalculateException("empty number stack");
         }
-
-        // searching for the operator
-        Operator operator = Operator.getEnum(operatorString);
+        Operator operator = Operator.getEnum(element.getValue());
         if (operator == null) {
             throw new CalculateException("invalid operator");
         }
-
-        // clear value stack and instructions stack
         if (operator == Operator.CLEAR) {
             clearStacks();
             return;
         }
-
-        // undo evaluates the last instruction in stack
         if (operator == Operator.UNDO) {
             undoLastProcess();
             return;
         }
-
-        // Checking that there are enough operand for the operation
         if (operator.getOperandsNumber() > numberStack.size()) {
-            throwInvalidOperand(operatorString);
+            throwInvalidOperand(element.getValue());
         }
-
-        // getting operands
         Double firstOperand = numberStack.pop();
         Double secondOperand = (operator.getOperandsNumber() > 1) ? numberStack.pop() : null;
-        // calculate
         Double result = operator.calculate(firstOperand, secondOperand);
         if (result != null) {
             numberStack.push(result);
-            if (!isUndoOperation) {
-                instructionsStack.push(new Instruction(Operator.getEnum(operatorString), firstOperand));
+            if (!element.isUndo()) {
+                instructionStack.push(new Instruction(Operator.getEnum(element.getValue()), firstOperand));
             }
         }
     }
 
     private void undoLastProcess() throws CalculateException {
-        if (instructionsStack.isEmpty()) {
+        if (instructionStack.isEmpty()) {
             throw new CalculateException("no operations to undo");
         }
-
-        Instruction lastInstruction = instructionsStack.pop();
+        Instruction lastInstruction = instructionStack.pop();
         if (lastInstruction == null) {
             numberStack.pop();
         } else {
-            String tmp = lastInstruction.getReverseInstruction();
-            processElement(tmp, true);
+            List<Element> reverseElements = lastInstruction.getReverseInstruction();
+            for (Element element : reverseElements) {
+                processElement(element);
+            }
         }
     }
 
     private void clearStacks() {
         numberStack.clear();
-        instructionsStack.clear();
+        instructionStack.clear();
     }
 
     private void throwInvalidOperand(String operator) throws CalculateException {
         throw new CalculateException(
-                String.format("operator %s (position: %d): insufficient parameters", operator, currentElementIndex));
+            String.format("operator %s (position: %d): insufficient parameters", operator, currentElementIndex));
     }
 
     /**
      * Returns the values valuesStack
      */
-    public Stack<Double> getValuesStack() {
+    public Stack<Double> getValueStack() {
         return numberStack;
-    }
-
-    /**
-     * Helper method to return a specific item in the valuesStack
-     *
-     * @param index index of the element to return
-     */
-    public Double getStackItem(int index) {
-        return numberStack.get(index);
-    }
-
-    /**
-     *
-     *
-     * @param input valid RPN expression
-     */
-    public void processLine(String input) throws CalculateException {
-        processLine(input, false);
-    }
-
-    /**
-     * process the whole input line
-     *
-     * @param input           input line
-     * @param isUndoOperation indicates if the operation is an undo operation.
-     *                        undo operations use the same evaluation functions as the standard ones
-     *                        but they are not pushed into instructionsStack
-     */
-    private void processLine(String input, boolean isUndoOperation) throws CalculateException {
-        currentElementIndex = 0;
-        String[] elements = input.split(" ");
-        for (String element : elements) {
-            currentElementIndex++;
-            processElement(element, isUndoOperation);
-        }
-    }
-
-    /**
-     * Judge the element is real number or not.
-     *
-     * @param element single element
-     */
-    private boolean isRealNumber(String element) {
-        try {
-            Double.parseDouble(element);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
     }
 }
 

@@ -1,5 +1,8 @@
 package rpn;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author: Peng Cheng
  * @description:
@@ -14,10 +17,18 @@ public class Instruction {
         this.value = value;
     }
 
-    public String getReverseInstruction() throws CalculateException {
+    public List<Element> getReverseInstruction() throws CalculateException {
+        List<Element> reverseElement = new ArrayList<Element>();
         if (operator.getOperandsNumber() < 1) {
             throw new CalculateException(String.format("invalid operation for operator %s", operator.getSymbol()));
         }
-        return (operator.getOperandsNumber() == 2) ? String.format("%f %s %f", value, operator.getOpposite(), value) : String.format("%s", operator.getOpposite());
+        if (operator.getOperandsNumber() == 2) {
+            reverseElement.add(new Element(value.toString(), true));
+            reverseElement.add(new Element(operator.getOpposite(), true));
+            reverseElement.add(new Element(value.toString(), true));
+        } else {
+            reverseElement.add(new Element(operator.getOpposite(), true));
+        }
+        return reverseElement;
     }
 }

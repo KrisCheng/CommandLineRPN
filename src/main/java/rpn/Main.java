@@ -26,12 +26,10 @@ public class Main {
                 } catch (CalculateException e) {
                     System.out.println(e.getMessage());
                 }
-                // format for presentation
-                DecimalFormat decimalFormat = new DecimalFormat("0.##########");
-                Stack<Double> stack = calculator.getValuesStack();
+                Stack<Double> stack = calculator.getValueStack();
                 System.out.print("stack: ");
                 for (Double number : stack) {
-                    System.out.print(decimalFormat.format(number));
+                    System.out.print(Utils.formatDouble(number));
                     System.out.print(" ");
                 }
                 System.out.printf("%n");
