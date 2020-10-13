@@ -18,7 +18,7 @@ public class Main {
         Calculator calculator = new Calculator();
         while (input.hasNextLine()) {
             String currentLine = input.nextLine();
-            if (currentLine.trim().equals(QUIT_INPUT)) {
+            if (currentLine == null || currentLine.trim().equals(QUIT_INPUT) ) {
                 break;
             } else {
                 try {

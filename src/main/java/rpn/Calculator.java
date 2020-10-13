@@ -9,7 +9,7 @@ import java.util.Stack;
  * @since: 2020/10/13 21:19
  */
 public class Calculator {
-    private Stack<Double> numberStack = new Stack<Double>();
+    private Stack<Double> valueStack = new Stack<Double>();
     private Stack<Instruction> instructionStack = new Stack<Instruction>();
     private int currentElementIndex = 0;
 
@@ -35,7 +35,7 @@ public class Calculator {
      */
     private void processElement(Element element) {
         if (Utils.isRealNumber(element.getValue())) {
-            numberStack.push(Double.parseDouble(element.getValue()));
+            valueStack.push(Double.parseDouble(element.getValue()));
             if (!element.isUndo()) {
                 instructionStack.push(null);
             }
@@ -50,7 +50,7 @@ public class Calculator {
      * @param element
      */
     private void processOperator(Element element) {
-        if (numberStack.isEmpty()) {
+        if (valueStack.isEmpty()) {
             throw new CalculateException("empty number stack");
         }
         Operator operator = Operator.getEnum(element.getValue());
@@ -65,14 +65,14 @@ public class Calculator {
             undoLastProcess();
             return;
         }
-        if (operator.getOperandsNumber() > numberStack.size()) {
+        if (operator.getOperandsNumber() > valueStack.size()) {
             throwInvalidOperand(element.getValue());
         }
-        Double firstOperand = numberStack.pop();
-        Double secondOperand = (operator.getOperandsNumber() > 1) ? numberStack.pop() : null;
+        Double firstOperand = valueStack.pop();
+        Double secondOperand = (operator.getOperandsNumber() > 1) ? valueStack.pop() : null;
         Double result = operator.calculate(firstOperand, secondOperand);
         if (result != null) {
-            numberStack.push(result);
+            valueStack.push(result);
             if (!element.isUndo()) {
                 instructionStack.push(new Instruction(Operator.getEnum(element.getValue()), firstOperand));
             }
@@ -85,7 +85,7 @@ public class Calculator {
         }
         Instruction lastInstruction = instructionStack.pop();
         if (lastInstruction == null) {
-            numberStack.pop();
+            valueStack.pop();
         } else {
             List<Element> reverseElements = lastInstruction.getReverseInstruction();
             for (Element element : reverseElements) {
@@ -95,7 +95,7 @@ public class Calculator {
     }
 
     private void clearStacks() {
-        numberStack.clear();
+        valueStack.clear();
         instructionStack.clear();
     }
 
@@ -104,8 +104,17 @@ public class Calculator {
             String.format("operator %s (position: %d): insufficient parameters", operator, currentElementIndex));
     }
 
+    /**
+     * Helper method to return a specific item in the valuesStack
+     *
+     * @param index index of the element to return
+     */
+    public Double getStackItem(int index) {
+        return valueStack.get(index);
+    }
+
     public Stack<Double> getValueStack() {
-        return numberStack;
+        return valueStack;
     }
 }
 
