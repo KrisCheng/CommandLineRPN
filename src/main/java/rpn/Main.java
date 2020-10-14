@@ -1,6 +1,5 @@
 package rpn;
 
-import java.text.DecimalFormat;
 import java.util.Scanner;
 import java.util.Stack;
 
@@ -16,6 +15,7 @@ public class Main {
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
         Calculator calculator = new Calculator();
+        System.out.println("Please type your RPN calculate string (end with Enter, type `quit` for quit the whole program):");
         while (input.hasNextLine()) {
             String currentLine = input.nextLine();
             if (currentLine == null || currentLine.trim().equals(QUIT_INPUT) ) {
@@ -32,7 +32,7 @@ public class Main {
                     System.out.print(Utils.formatDouble(number));
                     System.out.print(" ");
                 }
-                System.out.printf("%n");
+                System.out.println();
             }
         }
     }

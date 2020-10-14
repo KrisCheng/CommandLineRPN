@@ -8,66 +8,66 @@ import static java.lang.Math.sqrt;
 
 /**
  * @author: Peng Cheng
- * @description: operator handle class, which based on the operator, reverse for undo process, operandNumber for discriminate
+ * @description: operator handle class, which contains the operator, reverse for undo process, operandNumber for discrimination
  * @since: 2020/10/13 21:21
  */
 public enum Operator {
 
     ADDITION("+", "-", 2) {
         @Override
-        public Double calculate(Double firstOperand, Double secondOperand) {
-            return secondOperand + firstOperand;
+        public Double calculate(Double firstValue, Double secondValue) {
+            return secondValue + firstValue;
         }
     },
 
     SUBTRACTION("-", "+", 2) {
         @Override
-        public Double calculate(Double firstOperand, Double secondOperand) {
-            return secondOperand - firstOperand;
+        public Double calculate(Double firstValue, Double secondValue) {
+            return secondValue - firstValue;
         }
     },
 
     MULTIPLICATION("*", "/", 2) {
         @Override
-        public Double calculate(Double firstOperand, Double secondOperand) {
-            return secondOperand * firstOperand;
+        public Double calculate(Double firstValue, Double secondValue) {
+            return secondValue * firstValue;
         }
     },
 
     DIVISION("/", "*", 2) {
         @Override
-        public Double calculate(Double firstOperand, Double secondOperand) throws CalculateException {
-            if (firstOperand == 0) {
+        public Double calculate(Double firstValue, Double secondValue) throws CalculateException {
+            if (firstValue == 0) {
                 throw new CalculateException("0 is illegal as divisor.");
             }
-            return secondOperand / firstOperand;
+            return secondValue / firstValue;
         }
     },
 
     SQUAREROOT("sqrt", "pow", 1) {
         @Override
-        public Double calculate(Double firstOperand, Double secondOperand) {
-            return sqrt(firstOperand);
+        public Double calculate(Double firstValue, Double secondValue) {
+            return sqrt(firstValue);
         }
     },
 
     POWER("pow", "sqrt", 1) {
         @Override
-        public Double calculate(Double firstOperand, Double secondOperand) {
-            return pow(firstOperand, 2);
+        public Double calculate(Double firstValue, Double secondValue) {
+            return pow(firstValue, 2);
         }
     },
 
     UNDO("undo", null, 0) {
         @Override
-        public Double calculate(Double firstOperand, Double secondOperand) throws CalculateException{
+        public Double calculate(Double firstValue, Double secondValue) throws CalculateException{
             throw new CalculateException("invalid operation");
         }
     },
 
     CLEAR("clear", null, 0) {
         @Override
-        public Double calculate(Double firstOperand, Double secondOperand) throws CalculateException {
+        public Double calculate(Double firstValue, Double secondValue) throws CalculateException {
             throw new CalculateException("invalid operation");
         }
     };
@@ -83,15 +83,15 @@ public enum Operator {
 
     private String operator;
     private String opposite;
-    private int operandNumber;
+    private int valueNumber;
 
-    Operator (String operator, String opposite, int operandNumber) {
+    Operator (String operator, String opposite, int valueNumber) {
         this.operator = operator;
         this.opposite = opposite;
-        this.operandNumber = operandNumber;
+        this.valueNumber = valueNumber;
     }
 
-    public abstract Double calculate(Double firstOperand, Double secondOperand) throws CalculateException;
+    public abstract Double calculate(Double firstValue, Double secondValue) throws CalculateException;
 
     public String getOperator() {
         return operator;
@@ -101,8 +101,8 @@ public enum Operator {
         return opposite;
     }
 
-    public int getOperandsNumber() {
-        return operandNumber;
+    public int getValueNumber() {
+        return valueNumber;
     }
 
     public static Operator getEnum(String value) {
@@ -114,4 +114,3 @@ public enum Operator {
         return operator;
     }
 }
-

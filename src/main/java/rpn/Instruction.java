@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * @author: Peng Cheng
- * @description:
+ * @description: real executed instruction
  * @since: 2020/10/13 22:20
  */
 public class Instruction {
@@ -17,18 +17,15 @@ public class Instruction {
         this.value = value;
     }
 
-    public List<Element> getReverseInstruction() throws CalculateException {
-        List<Element> reverseElement = new ArrayList<Element>();
-        if (operator.getOperandsNumber() < 1) {
-            throw new CalculateException(String.format("invalid operation for operator %s", operator.getOperator()));
+    public List<Element> getReversedElements() throws CalculateException {
+        List<Element> reversedElements = new ArrayList<Element>();
+        if (operator.getValueNumber() == 1) {
+            reversedElements.add(new Element(operator.getOpposite(), true));
+        } else if (operator.getValueNumber() == 2) {
+            reversedElements.add(new Element(value.toString(), true));
+            reversedElements.add(new Element(operator.getOpposite(), true));
+            reversedElements.add(new Element(value.toString(), true));
         }
-        if (operator.getOperandsNumber() == 2) {
-            reverseElement.add(new Element(value.toString(), true));
-            reverseElement.add(new Element(operator.getOpposite(), true));
-            reverseElement.add(new Element(value.toString(), true));
-        } else {
-            reverseElement.add(new Element(operator.getOpposite(), true));
-        }
-        return reverseElement;
+        return reversedElements;
     }
 }

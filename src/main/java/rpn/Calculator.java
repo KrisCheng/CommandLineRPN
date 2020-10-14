@@ -20,10 +20,10 @@ public class Calculator {
      */
     public void processLine(String input) {
         currentElementIndex = 0;
-        String[] elements = input.split(" ");
-        for (String element : elements) {
+        String[] values = input.split(" ");
+        for (String value : values) {
             currentElementIndex++;
-            processElement(new Element(element, false));
+            processElement(new Element(value, false));
         }
     }
 
@@ -31,13 +31,12 @@ public class Calculator {
      * process single element
      *
      * @param element current element
-     * @throws CalculateException
      */
     private void processElement(Element element) {
         if (Utils.isRealNumber(element.getValue())) {
             valueStack.push(Double.parseDouble(element.getValue()));
             if (!element.isUndo()) {
-                instructionStack.push(null);
+                instructionStack.push(new Instruction(null, Double.parseDouble(element.getValue())));
             }
         } else {
             processOperator(element);
@@ -47,48 +46,42 @@ public class Calculator {
     /**
      * process operator
      *
-     * @param element
+     * @param element current element
      */
     private void processOperator(Element element) {
-        if (valueStack.isEmpty()) {
-            throw new CalculateException("empty number stack");
-        }
         Operator operator = Operator.getEnum(element.getValue());
         if (operator == null) {
             throw new CalculateException("invalid operator");
-        }
-        if (operator == Operator.CLEAR) {
+        } else if (operator == Operator.CLEAR) {
             clearStacks();
             return;
-        }
-        if (operator == Operator.UNDO) {
+        } else if (operator == Operator.UNDO) {
             undoLastProcess();
             return;
+        } else if (operator.getValueNumber() > valueStack.size()) {
+            throw new CalculateException(String.format("operator %s (position: %d): insufficient parameters", operator, currentElementIndex));
         }
-        if (operator.getOperandsNumber() > valueStack.size()) {
-            throwInvalidOperand(element.getValue());
-        }
-        Double firstOperand = valueStack.pop();
-        Double secondOperand = (operator.getOperandsNumber() > 1) ? valueStack.pop() : null;
-        Double result = operator.calculate(firstOperand, secondOperand);
+        Double firstValue = valueStack.pop();
+        Double secondValue = (operator.getValueNumber() > 1) ? valueStack.pop() : null;
+        Double result = operator.calculate(firstValue, secondValue);
         if (result != null) {
             valueStack.push(result);
             if (!element.isUndo()) {
-                instructionStack.push(new Instruction(Operator.getEnum(element.getValue()), firstOperand));
+                instructionStack.push(new Instruction(Operator.getEnum(element.getValue()), firstValue));
             }
         }
     }
 
     private void undoLastProcess() throws CalculateException {
         if (instructionStack.isEmpty()) {
-            throw new CalculateException("no operations to undo");
+            throw new CalculateException("no operation to undo");
         }
         Instruction lastInstruction = instructionStack.pop();
-        if (lastInstruction == null) {
+        if (lastInstruction.operator == null) {
             valueStack.pop();
         } else {
-            List<Element> reverseElements = lastInstruction.getReverseInstruction();
-            for (Element element : reverseElements) {
+            List<Element> reversedElements = lastInstruction.getReversedElements();
+            for (Element element : reversedElements) {
                 processElement(element);
             }
         }
@@ -99,22 +92,7 @@ public class Calculator {
         instructionStack.clear();
     }
 
-    private void throwInvalidOperand(String operator) throws CalculateException {
-        throw new CalculateException(
-            String.format("operator %s (position: %d): insufficient parameters", operator, currentElementIndex));
-    }
-
-    /**
-     * Helper method to return a specific item in the valuesStack
-     *
-     * @param index index of the element to return
-     */
-    public Double getStackItem(int index) {
-        return valueStack.get(index);
-    }
-
     public Stack<Double> getValueStack() {
         return valueStack;
     }
 }
-
